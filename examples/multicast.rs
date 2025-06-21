@@ -65,12 +65,7 @@ fn main() {
     let raw_rx_buffer = raw::PacketBuffer::new(vec![raw::PacketMetadata::EMPTY; 2], vec![0; 512]);
     // Will not send IGMP
     let raw_tx_buffer = raw::PacketBuffer::new(vec![], vec![]);
-    let raw_socket = raw::Socket::new(
-        Some(IpVersion::Ipv4),
-        Some(IpProtocol::Igmp),
-        raw_rx_buffer,
-        raw_tx_buffer,
-    );
+    let raw_socket = raw::Socket::new(raw_rx_buffer, raw_tx_buffer);
     let raw_handle = sockets.add(raw_socket);
 
     // Must fit mDNS payload of at least one packet
