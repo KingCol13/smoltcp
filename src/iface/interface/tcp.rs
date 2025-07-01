@@ -1,6 +1,6 @@
 use super::*;
 
-use crate::socket::tcp::Socket;
+use crate::{socket::raw::Socket as RawSocket, socket::tcp::Socket};
 
 impl InterfaceInner {
     pub(crate) fn process_tcp<'frame>(
@@ -26,6 +26,18 @@ impl InterfaceInner {
                 return tcp_socket
                     .process(self, &ip_repr, &tcp_repr)
                     .map(|(ip, tcp)| Packet::new(ip, IpPayload::Tcp(tcp)));
+            }
+        }
+
+        #[cfg(feature = "socket-raw")]
+        for raw_socket in sockets
+            .items_mut()
+            .filter_map(|i| RawSocket::downcast_mut(&mut i.socket))
+        {
+            // Stop if we find a raw socket accepting TCP.
+            if raw_socket.accepts(&ip_repr) {
+                // Payload will be processed by raw socket separately.
+                return None;
             }
         }
 
